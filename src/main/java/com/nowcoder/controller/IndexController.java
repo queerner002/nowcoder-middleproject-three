@@ -47,6 +47,7 @@ public class IndexController {
         return String.format("GID{%s},UID{%d},TYPE{%d},KEY{%s}", groupId, userId, type, key);
     }
 
+
     @RequestMapping(value = {"/vm"})
     public String news(Model model) {
         model.addAttribute("value1", "vv1");
