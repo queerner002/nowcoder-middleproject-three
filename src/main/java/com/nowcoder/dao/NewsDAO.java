@@ -22,5 +22,5 @@ public interface NewsDAO {
     int addNews(News news);
 
     List<News> selectByUserIdAndOffset(@Param("userId") int userId, @Param("offset") int offset,
-                                       @Param("limit") int limit);
+                                       @Param("limit") int limit); //用了xml的方式操作数据库
 }
