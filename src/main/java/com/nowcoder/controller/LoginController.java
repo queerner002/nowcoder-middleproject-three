@@ -40,14 +40,34 @@ public class LoginController {
             else {
                 return ToutiaoUtil.getJSONString(1, "用户名重复");
             }
-
-
         } catch (Exception e) {
             logger.error("注册异常" + e.getMessage());
             return ToutiaoUtil.getJSONString(1, "注册异常");
         }
-
     }
 
-
+    @RequestMapping(path = {"/login/"}, method = {RequestMethod.GET, RequestMethod.POST})
+    @ResponseBody
+    public String login(Model model, @RequestParam("username") String username,
+                        @RequestParam("password") String password,
+                        @RequestParam(value = "rember", defaultValue = "0") int rememberme,
+                        HttpServletResponse response){
+        try {
+            Map<String, Object> map = userService.login(username, password);
+            if (map.containsKey("ticket")){
+                Cookie cookie = new Cookie("ticket", (String) map.get("ticket"));
+                cookie.setPath("/");
+                if (rememberme > 0){
+                    cookie.setMaxAge(3600*24*5);
+                }
+                return ToutiaoUtil.getJSONString(0, "登陆成功");
+            }
+            else {
+                return ToutiaoUtil.getJSONString(1, map);
+            }
+        } catch (Exception e) {
+            logger.error("登陆异常" + e.getMessage());
+            return ToutiaoUtil.getJSONString(1, "登陆异常");
+        }
+    }
 }
