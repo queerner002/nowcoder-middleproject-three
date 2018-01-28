@@ -3,10 +3,7 @@ package com.nowcoder.controller;
 import com.nowcoder.Util.ToutiaoUtil;
 
 import com.nowcoder.model.*;
-import com.nowcoder.service.CommentService;
-import com.nowcoder.service.NewsService;
-import com.nowcoder.service.QiniuService;
-import com.nowcoder.service.UserService;
+import com.nowcoder.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +42,9 @@ public class NewsController {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    LikeService likeService;
 
     @RequestMapping(path = {"/user/addNews/"}, method = {RequestMethod.POST})
     @ResponseBody
@@ -131,6 +131,12 @@ public class NewsController {
         try {
             News news = newsService.getById(newsId);
             if (news != null){
+                int localUserId = hostHolder.getUsers() != null ? hostHolder.getUsers().getId() : 0;
+                if (localUserId != 0) {
+                    model.addAttribute("like", likeService.getLikeStatus(localUserId, EntityType.ENTITY_NEWS, news.getId()));
+                } else {
+                    model.addAttribute("like", 0);
+                }
                 List<Comment> comments = commentService.getCommentsByEntity(newsId, EntityType.ENTITY_NEWS);
                 List<ViewObject> commentVos = new ArrayList<>();
                 for (Comment comment : comments){
