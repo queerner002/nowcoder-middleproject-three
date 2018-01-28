@@ -7,10 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
@@ -34,8 +31,15 @@ public class LoginController {
                       HttpServletResponse response){
         try {
             Map<String, Object> map = userService.register(username, password);
-            if (map.size() == 0){
-                return ToutiaoUtil.getJSONString(0, "注册成功");
+            if (map.containsKey("ticket")){
+                //return ToutiaoUtil.getJSONString(0, "注册成功");
+                Cookie cookie = new Cookie("ticket", (String) map.get("ticket"));
+                cookie.setPath("/");
+                if (rememberme > 0){
+                    cookie.setMaxAge(3600*24*5);
+                }
+                response.addCookie(cookie);
+                return ToutiaoUtil.getJSONString(1, map);
             }
             else {
                 return ToutiaoUtil.getJSONString(1, "用户名重复");
@@ -60,6 +64,7 @@ public class LoginController {
                 if (rememberme > 0){
                     cookie.setMaxAge(3600*24*5);
                 }
+                response.addCookie(cookie);
                 return ToutiaoUtil.getJSONString(0, "登陆成功");
             }
             else {
@@ -70,4 +75,11 @@ public class LoginController {
             return ToutiaoUtil.getJSONString(1, "登陆异常");
         }
     }
+
+    @RequestMapping(path = {"/logout/"}, method = {RequestMethod.GET, RequestMethod.POST})
+    public String login(@CookieValue("ticket") String ticket){
+        userService.logout(ticket);
+        return "redirect:/";
+    }
+
 }

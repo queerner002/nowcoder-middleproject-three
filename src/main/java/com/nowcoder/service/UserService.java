@@ -49,6 +49,9 @@ public class UserService {
         user.setHeadUrl(head);
         user.setPassword(ToutiaoUtil.MD5(password + user.getSalt()));
         userDAO.addUser(user);
+
+        String ticket = addLoginTicket(user.getId());
+        map.put("ticket", ticket);
         //map.put("msgname", "注册成功");
         return map;
     }
@@ -88,5 +91,10 @@ public class UserService {
         loginTicketDAO.addLoginTicket(ticket);
         return ticket.getTicket();
     }
+
+    public void logout(String ticket){
+        loginTicketDAO.updateStatus(ticket, 1); //1失效，0有效
+    }
+
 
 }
